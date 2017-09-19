@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'IdentityCard_Example' do
+  pod 'IdentityCard', :path => '../'
+
+  target 'IdentityCard_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
