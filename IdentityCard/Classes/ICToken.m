@@ -12,8 +12,8 @@
 
 @implementation ICToken
 
-+ (ICDToken *)currentToken {
-    static ICDToken *sharedInstance = nil;
++ (ICToken *)currentToken {
+    static ICToken *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         if(!(sharedInstance = [self readSingleton])) {
@@ -37,7 +37,7 @@ ICCoding
     _valid = valid;
     
     if(!_valid) {
-        [self clearUp];
+        [self reset];
     }
 }
 

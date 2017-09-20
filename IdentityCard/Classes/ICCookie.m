@@ -8,6 +8,7 @@
 #import "ICCookie.h"
 #import "ICCoding.h"
 #import "ICModelManager.h"
+#import "ICModelProtocol.h"
 
 @implementation ICCookie
 

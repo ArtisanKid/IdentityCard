@@ -47,8 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) NSUInteger loginType;/**<登陆类型*/
 
-- (void)registerKVO;
-
 /**
  *  注册Log状态
  *  内部使用NSMapTable(weIC->strong)来管理(target，blocks)，使用此方法的原因是，无需主动释放target。根据文档说明，当key释放的时候，NSMapTable中对应的value也会释放(延迟的)。

@@ -8,6 +8,8 @@
 #import "ICUser.h"
 #import <libkern/OSAtomic.h>
 #import "ICCoding.h"
+#import "ICModelManager.h"
+#import "ICModelProtocol.h"
 
 @interface ICUser ()
 
@@ -27,14 +29,9 @@ static OSSpinLock ICUser_Lock = OS_SPINLOCK_INIT;
         if(!(sharedInstance = [self readSingleton])) {
             sharedInstance = [[super allocWithZone:NULL] init];
         }
-        [sharedInstance registerKVO];
+        [ICModelManager observe:(id<ICModelProtocol>)self keyPath:@"visitorID", @"userID", @"openID", @"role", @"portrait", @"smallPortrait", @"largePortrait", @"nickName", @"realName", @"gender", @"mobile", @"tel", @"email", @"address", @"brief", @"detail", @"loginType", @"logined", nil];
     });
     return sharedInstance;
-}
-
-- (void)registerKVO {
-    [self.observedKeyPathsM removeAllObjects];
-    [self registerKVO:@"visitorID", @"userID", @"openID", @"role", @"portrait", @"smallPortrait", @"largePortrait", @"nickName", @"realName", @"gender", @"mobile", @"tel", @"email", @"address", @"brief", @"detail", @"loginType", @"logined", nil];
 }
 
 ICCoding
@@ -44,7 +41,7 @@ ICCoding
     static NSMapTable<id, NSMutableArray<void(^)(id target, BOOL isLogined)> *> *registerTable = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        registerTable = [NSMapTable weICToStrongObjectsMapTable];
+        registerTable = [NSMapTable weakToStrongObjectsMapTable];
     });
     return registerTable;
 }
@@ -67,7 +64,7 @@ ICCoding
     //[self didChangeValueForKey:@"logined"];
     
     if(!_logined) {
-        [self clearUp];
+        [self reset];
     }
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
