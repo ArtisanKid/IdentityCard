@@ -6,11 +6,10 @@
 //
 
 #import "ICModel.h"
-#import "ICCookieProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICCookie : ICModel<ICCookieProtocol, NSCoding>
+@interface ICCookie : ICModel<NSCoding>
 
 @property (class, nonatomic, strong, readonly) ICCookie *currentCookie;/**<当前cookie*/
 

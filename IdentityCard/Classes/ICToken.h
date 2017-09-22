@@ -6,11 +6,10 @@
 //
 
 #import "ICModel.h"
-#import "ICTokenProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICToken : ICModel<ICTokenProtocol, NSCoding>
+@interface ICToken : ICModel<NSCoding>
 
 @property (class, nonatomic, strong, readonly) ICToken *currentToken;/**<当前token*/
 

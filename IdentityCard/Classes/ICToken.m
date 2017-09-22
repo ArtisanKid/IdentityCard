@@ -19,7 +19,7 @@
         if(!(sharedInstance = [self readSingleton])) {
             sharedInstance = [[super allocWithZone:NULL] init];
         }
-        [ICModelManager observe:(id<ICModelProtocol>)self keyPath:@"accessToken", @"refreshToken", @"expiredTime", @"valid", @"unexpired", nil];
+        [ICModelManager observe:(id<ICModelProtocol>)sharedInstance keyPath:@"accessToken", @"refreshToken", @"expiredTime", @"valid", @"unexpired", nil];
     });
     return sharedInstance;
 }

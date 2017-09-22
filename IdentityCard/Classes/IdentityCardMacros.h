@@ -16,7 +16,7 @@
         printf("\n");\
     } while(0)
 #else
-    #define ICModelLog(_Format, ...)
+    #define IdentityCardLog(_Format, ...)
 #endif
 
 //nil和类型判断

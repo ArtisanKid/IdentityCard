@@ -87,12 +87,17 @@
 #pragma mark - Private Method
 
 + (NSArray<NSString *> *)customPropertyNames {
-    Class class = [self class];
+    static NSArray *propertyNames = nil;
+    if(propertyNames) {
+        return propertyNames;
+    }
+    
     NSMutableArray *propertyNamesM = [NSMutableArray array];
+    Class class = [self class];
     do {
         NSBundle *bundle = [NSBundle bundleForClass:class];
         if (![bundle.bundlePath containsString:NSBundle.mainBundle.bundlePath]) {//非自定义类，不做监听
-            return [propertyNamesM copy];
+            break;
         }
         
         unsigned int propertyCount = 0;
@@ -103,34 +108,58 @@
             NSString *key = [NSString stringWithUTF8String:propertyName];
             [propertyNamesM addObject:key];
         }
+        free(properties);
     } while ((class = [class superclass]));
-    return [propertyNamesM copy];
+    
+    if(propertyNames.count) {
+        propertyNames = [propertyNamesM copy];
+    }
+    
+    return propertyNames;
 }
 
 + (NSString *)defaultSignature {
-    NSMutableArray<NSString *> *signatureComponents = [[self customPropertyNames] mutableCopy];
-    [signatureComponents sortUsingComparator:^NSComparisonResult(NSString * _Nonnull obj1, NSString * _Nonnull obj2) {
+    static NSString *hash = nil;
+    if(hash) {
+        return hash;
+    }
+    
+    NSMutableArray<NSString *> *signatureComponentsM = [[self customPropertyNames] mutableCopy];
+    [signatureComponentsM sortUsingComparator:^NSComparisonResult(NSString * _Nonnull obj1, NSString * _Nonnull obj2) {
         return [obj1 compare:obj2];
     }];
-    NSString *signature = @([[signatureComponents componentsJoinedByString:@":"] hash]).description;
+    
+    NSArray<NSString *> *signatureComponents = [signatureComponentsM copy];
+    NSString *signature = @([signatureComponents componentsJoinedByString:@":"].hash).description;
     
     unsigned char output[CC_MD5_DIGEST_LENGTH];
     CC_MD5(signature.UTF8String, (CC_LONG)strlen(signature.UTF8String), output);
-    NSMutableString *hash = [NSMutableString string];
+    NSMutableString *hashM = [NSMutableString string];
     for (NSUInteger i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
-        [hash appendFormat:@"%02x", output[i]];
+        [hashM appendFormat:@"%02x", output[i]];
     }
     
-    return [hash copy];
+    if(hashM.length) {
+        hash = [hashM copy];
+    }
+    
+    return hash;
 }
 
 + (NSString *)modelFolderPath {
-    NSMutableArray *componentsM = [NSMutableArray array];
+    static NSString *path = nil;
+    if(path) {
+        return path;
+    }
+    
+    NSMutableArray<NSString *> *componentsM = [NSMutableArray array];
     [componentsM addObject:NSHomeDirectory()];
     [componentsM addObject:@"Library"];
     [componentsM addObject:@"ICModel"];
     [componentsM addObject:NSStringFromClass(self)];
-    NSString *path = [NSString pathWithComponents:[componentsM copy]];
+    
+    NSArray<NSString *> *components = [componentsM copy];
+    path = [NSString pathWithComponents:components];
     return path;
 }
 

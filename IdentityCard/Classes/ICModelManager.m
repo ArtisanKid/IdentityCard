@@ -46,7 +46,7 @@
 
 #pragma mark - Public Method
 
-+ (void)observe:(NSObject<ICModelProtocol> *)target keyPath:(NSString *)firstKeyPath, ... {
++ (void)observe:(id)target keyPath:(NSString *)firstKeyPath, ... {
     NSString *keyPath = firstKeyPath;
     va_list argList;
     va_start(argList, firstKeyPath);
@@ -67,7 +67,7 @@
     va_end(argList);
 }
 
-+ (void)ignore:(NSObject<ICModelProtocol> *)target keyPath:(NSString *)firstKeyPath, ... {
++ (void)ignore:(id)target keyPath:(NSString *)firstKeyPath, ... {
     NSString *keyPath = firstKeyPath;
     va_list argList;
     va_start(argList, firstKeyPath);
@@ -88,14 +88,16 @@
     va_end(argList);
 }
 
-+ (void)pause:(NSObject<ICModelProtocol> *)target {
-    [[self.manager.targetKeyPathsM[target] copy] enumerateObjectsUsingBlock:^(NSString * _Nonnull keyPath, NSUInteger idx, BOOL * _Nonnull stop) {
++ (void)pause:(id)target {
+    NSArray *keyPaths = [self.manager.targetKeyPathsM[target] copy];
+    [keyPaths enumerateObjectsUsingBlock:^(NSString * _Nonnull keyPath, NSUInteger idx, BOOL * _Nonnull stop) {
         [target removeObserver:self.manager forKeyPath:keyPath];
     }];
 }
 
-+ (void)resume:(NSObject<ICModelProtocol> *)target {
-    [[self.manager.targetKeyPathsM[target] copy] enumerateObjectsUsingBlock:^(NSString * _Nonnull keyPath, NSUInteger idx, BOOL * _Nonnull stop) {
++ (void)resume:(id)target {
+    NSArray *keyPaths = [self.manager.targetKeyPathsM[target] copy];
+    [keyPaths enumerateObjectsUsingBlock:^(NSString * _Nonnull keyPath, NSUInteger idx, BOOL * _Nonnull stop) {
         [target addObserver:self.manager forKeyPath:keyPath options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:NULL];
     }];
 }
@@ -108,10 +110,11 @@
 #pragma mark - 重载方法
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     IdentityCardLog(@"%@ 变更属性 %@，%@ -> %@", object, keyPath, change[NSKeyValueChangeOldKey], change[NSKeyValueChangeNewKey]);
-
-    if([object conformsToProtocol:@protocol(ICModelProtocol)]) {
-        [object cacheSingleton];
-    }
+    dispatch_async(self.archive_serial_queue, ^{
+        if([object conformsToProtocol:@protocol(ICModelProtocol)]) {
+            [object cacheSingleton];
+        }
+    });
 }
 
 #pragma mark - Property Method

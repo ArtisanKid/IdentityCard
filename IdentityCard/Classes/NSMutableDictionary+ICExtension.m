@@ -9,12 +9,12 @@
 
 @implementation NSMutableDictionary (ICExtension)
 
-- (NSMutableArray *)ic_keyPathsForObject:(id)object {
+- (NSMutableArray *)ic_keyPathsForObject:(NSObject *)object {
     NSMutableArray *keyPathsM = self[object];
     if(!keyPathsM
        || ![keyPathsM isKindOfClass:[NSMutableArray class]]) {
         keyPathsM = [NSMutableArray array];
-        self[object] = keyPathsM;
+        self[@(object.hash)] = keyPathsM;
     }
     return keyPathsM;
 }
